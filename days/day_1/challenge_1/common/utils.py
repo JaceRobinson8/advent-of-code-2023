@@ -8,20 +8,12 @@ logger = logging
 
 @dataclass
 class Calibration:
-    raw_string: str
+    raw: str
 
     @property
-    def calibration_value(self) -> int:
-        first = "0"
-        last = "0"
-        first_digit = True
-        for id_inner, val_inner in enumerate(self.raw_string):
-            if val_inner.isdigit():
-                if first_digit:
-                    first = val_inner
-                    first_digit = False
-                last = val_inner
-        return int(first + last)
+    def cal_val(self) -> int:
+        digits = [char for char in self.raw if char.isdigit()]
+        return int(digits[0] + digits[-1])
 
 
 def parse_input(file_path: Path = Path("./input/input.txt")) -> list[Calibration]:

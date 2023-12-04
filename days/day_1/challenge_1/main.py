@@ -12,6 +12,6 @@ if __name__ == "__main__":
     )
     input_path = Path("./days/day_1/challenge_1/input/input.txt")
     cal_list = parse_input(input_path)
-    res = sum([cal.calibration_value for cal in cal_list])
+    sum_cal = sum([cal.cal_val for cal in cal_list])
     logger.info("****Final Answer****")
-    logger.info(res)
+    logger.info(sum_cal)
