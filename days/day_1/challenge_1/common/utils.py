@@ -15,8 +15,6 @@ class Calibration:
         digits = [char for char in self.raw if char.isdigit()]
         return int(digits[0] + digits[-1])
 
-    def _isdigit(char: str):
-
 
 def parse_input(file_path: Path = Path("./input/input.txt")) -> list[Calibration]:
     with open(file_path) as f:
