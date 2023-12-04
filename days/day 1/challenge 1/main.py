@@ -1,6 +1,6 @@
 import csv
 
-file_path = "./input/input.txt"
+file_path = "./days/day 1/challenge 1/input/input.txt"
 
 with open(file_path) as f:
     reader = csv.reader(f)
