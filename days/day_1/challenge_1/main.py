@@ -1,12 +1,9 @@
-import csv
+from pathlib import Path
+from common.utils import parse_input
 
-file_path = "./days/day 1/challenge 1/input/input.txt"
+file_path = Path("./days/day 1/challenge 1/input/input.txt")
 
-with open(file_path) as f:
-    reader = csv.reader(f)
-    data = list(reader)
-
-print(data)
+data = parse_input(file_path)
 
 res = []
 for id, val in enumerate(data):
