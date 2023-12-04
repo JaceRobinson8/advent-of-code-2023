@@ -26,10 +26,8 @@ for id, val in enumerate(data):
 
 print(res)
 
-sum = 0 
+sum = 0
 for val in res:
     sum += val
 
 print(sum)
-
-        
