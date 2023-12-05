@@ -10,8 +10,6 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG, format="%(message)s", handlers=[RichHandler()]
     )
-    # input_path = Path("./days/day_2/challenge_1/input/input.txt")
-    # cal_list = parse_input(input_path)
-    # sum_cal = sum([cal.cal_val for cal in cal_list])
-    # logger.info("****Final Answer****")
-    # logger.info(sum_cal)
+    input_path = Path("./days/day_2/challenge_1/input/input.txt")
+    games = parse_input(input_path)
+    logger.info(games)
