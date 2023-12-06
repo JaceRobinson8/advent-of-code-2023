@@ -12,20 +12,38 @@ class Colors(Enum):
     BLUE = "blue"
 
 
+@dataclass
 class Round:
     n_red: int = 0
     n_blue: int = 0
     n_green: int = 0
 
-    def __init__(self, r: str):
-        colors = [x.split(" ") for x in r.split(", ")]
-        for color in colors:
-            if color[1] == Colors.RED:
-                self.n_red = int(color[0])
-            elif color[1] == Colors.GREEN:
-                self.n_green = int(color[0])
-            elif color[1] == Colors.BLUE:
-                self.n_blue = int(color[0])
+    @classmethod
+    def from_str(cls, round_str: str):
+        round = cls()
+        [round.set_count_from_str(count_str) for count_str in round_str.split(", ")]
+        return round
+
+    def set_count_from_str(self, count_str: str) -> None:
+        count, color = count_str.split(" ")
+        match color:
+            case Colors.RED.value:
+                self.n_red = int(count)
+            case Colors.GREEN.value:
+                self.n_green = int(count)
+            case Colors.BLUE.value:
+                self.n_blue = int(count)
+            case _:
+                raise ValueError("Invalid color str")
+
+    def check_possible(self, n_red_max: int, n_green_max: int, n_blue_max: int) -> bool:
+        # Game possible if real values less than equal to ALL provided values
+        logger.debug(f"r: {self.n_red}, g: {self.n_green}, b: {self.n_blue}")
+        return (
+            self.n_red <= n_red_max
+            and self.n_green <= n_green_max
+            and self.n_blue <= n_blue_max
+        )
 
 
 @dataclass
@@ -33,25 +51,22 @@ class Game:
     id: int
     rounds: list[Round]
 
-    # @property
-    # def cal_val(self) -> int:
-    #     digits = [char for char in self.raw if char.isdigit()]
-    #     return int(digits[0] + digits[-1])
+    @classmethod
+    def from_str(cls, game_str: str):
+        g_id_str, rounds_str = game_str.strip().split(": ")
+        return cls(
+            id=int(g_id_str.split(" ")[1]),
+            rounds=[Round.from_str(round_str) for round_str in rounds_str.split("; ")],
+        )
+
+    def check_possible(self, n_red_max: int, n_green_max: int, n_blue_max: int) -> bool:
+        return all(
+            [r.check_possible(n_red_max, n_green_max, n_blue_max) for r in self.rounds]
+        )
 
 
 def parse_input(file_path: Path = Path("./input/input.txt")) -> list[Game]:
     with open(file_path, "r") as file:
         lines = file.readlines()
-        games = []
-        for line in lines:
-            line = line.strip()  # remove new line
-            game, r_str = line.split(": ")  # separate game from rounds
-            games.append(
-                Game(
-                    id=game.split(" ")[-1], rounds=[Round(r) for r in r_str.split("; ")]
-                )
-            )
-            logger.info("Game:")
-            logger.info(Game)
-        # data = [Game(row[0]) for row in reader]
+        games = [Game.from_str(line) for line in lines]
     return games
