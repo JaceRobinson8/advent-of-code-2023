@@ -14,6 +14,7 @@ class PartNumber:
     col_index_start: int
     col_index_end: int
     number: int
+    valid: bool = False
 
 
 @dataclass
@@ -39,6 +40,9 @@ class Grid:
     def n_col(self) -> int:
         return self.g.shape[1]
 
+    def _get_part_numbers_row(self, rid: str) -> list[PartNumber]:
+        pass
+
     def get_part_numbers(self) -> list[PartNumber]:
         # Loop over the grid, looking for part numbers
         # (continuous blocks of numbers in a row)
@@ -48,7 +52,6 @@ class Grid:
             col_start = -1
             col_end = -1
             for c in range(self.n_col):
-                # logger.debug(f"({r},{c})")
                 if self.g[r, c].isdigit():
                     col_end = c
                     if not found_part:  # we found start of new number
@@ -160,7 +163,7 @@ class Grid:
         return condition
 
 
-def parse_input(file_path: Path = Path("./input/input.txt")):
+def parse_input(file_path: Path = Path("./input/input.txt")) -> list[PartNumber]:
     # First make grid
     with open(file_path, "r") as file:
         grid = Grid.from_str(file.read())
