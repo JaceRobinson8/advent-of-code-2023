@@ -1,7 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
 import logging
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
