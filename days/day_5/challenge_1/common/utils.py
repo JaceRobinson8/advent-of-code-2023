@@ -6,14 +6,39 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class Map:
+    dest_starts: list[int] = field(default_factory=list)
+    src_starts: list[int] = field(default_factory=list)
+    lengths: list[int] = field(default_factory=list)
+
+    def get(self, idx: int) -> int:
+        out_idx = idx  # default value if idx not in any ranges
+        for i in range(len(self.src_starts)):
+            if (idx >= self.src_starts[i]) and idx < (
+                self.src_starts[i] + self.lengths[i]
+            ):
+                diff = (
+                    idx - self.src_starts[i]
+                )  # get different in source, and use that to map to dest
+                out_idx = self.dest_starts[i] + diff
+                break  # early terminate
+        return out_idx
+
+    def append(self, dest_start: int, src_start: int, length: int) -> None:
+        self.dest_starts.append(dest_start)
+        self.src_starts.append(src_start)
+        self.lengths.append(length)
+
+
+@dataclass
 class Almanac:
-    seed2soil: dict = field(default_factory=dict)
-    soil2fert: dict = field(default_factory=dict)
-    fert2water: dict = field(default_factory=dict)
-    water2light: dict = field(default_factory=dict)
-    light2temp: dict = field(default_factory=dict)
-    temp2hum: dict = field(default_factory=dict)
-    hum2loc: dict = field(default_factory=dict)
+    seed2soil: Map = field(default_factory=Map)
+    soil2fert: Map = field(default_factory=Map)
+    fert2water: Map = field(default_factory=Map)
+    water2light: Map = field(default_factory=Map)
+    light2temp: Map = field(default_factory=Map)
+    temp2hum: Map = field(default_factory=Map)
+    hum2loc: Map = field(default_factory=Map)
 
     @classmethod
     def build_maps(cls, pages: list[str]):
@@ -25,55 +50,48 @@ class Almanac:
         title, content = page.split(":\n")
         for line in content.split("\n"):
             dest_start, src_start, length = line.split(" ")
-            self.update_dict(
+            self.update_map(
                 dict_name=title,
                 dest_start=int(dest_start),
                 src_start=int(src_start),
                 length=int(length),
             )
 
-    def update_dict(self, dict_name: str, dest_start: int, src_start: int, length: int):
+    def update_map(self, dict_name: str, dest_start: int, src_start: int, length: int):
         if dict_name == "seed-to-soil map":
-            my_dict = self.seed2soil
+            my_map = self.seed2soil
         elif dict_name == "soil-to-fertilizer map":
-            my_dict = self.soil2fert
+            my_map = self.soil2fert
         elif dict_name == "fertilizer-to-water map":
-            my_dict = self.fert2water
+            my_map = self.fert2water
         elif dict_name == "water-to-light map":
-            my_dict = self.water2light
+            my_map = self.water2light
         elif dict_name == "light-to-temperature map":
-            my_dict = self.light2temp
+            my_map = self.light2temp
         elif dict_name == "temperature-to-humidity map":
-            my_dict = self.temp2hum
+            my_map = self.temp2hum
         elif dict_name == "humidity-to-location map":
-            my_dict = self.hum2loc
+            my_map = self.hum2loc
         else:
             raise KeyError("Unexpected map name")
 
-        my_dict.update(
-            dict(
-                zip(
-                    range(src_start, src_start + length),
-                    range(dest_start, dest_start + length),
-                )
-            )
-        )
+        my_map.append(dest_start, src_start, length)
 
     def get_location(self, seed: int) -> int:
         logger.debug(f"seed: {seed}")
-        soil = self.seed2soil.get(seed, seed)
+        soil = self.seed2soil.get(seed)
         logger.debug(f"soil: {soil}")
-        fert = self.soil2fert.get(soil, soil)
+        fert = self.soil2fert.get(soil)
         logger.debug(f"fert: {fert}")
-        water = self.fert2water.get(fert, fert)
+        water = self.fert2water.get(fert)
         logger.debug(f"water: {water}")
-        light = self.water2light.get(water, water)
+        light = self.water2light.get(water)
         logger.debug(f"light: {light}")
-        temp = self.light2temp.get(light, light)
+        temp = self.light2temp.get(light)
         logger.debug(f"temp: {temp}")
-        hum = self.temp2hum.get(temp, temp)
+        hum = self.temp2hum.get(temp)
         logger.debug(f"hum: {hum}")
-        loc = self.hum2loc.get(hum, hum)
+        loc = self.hum2loc.get(hum)
         logger.debug(f"loc: {loc}")
         return loc
 
