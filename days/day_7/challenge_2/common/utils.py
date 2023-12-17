@@ -41,7 +41,19 @@ def key(round: Round) -> str:
     # separate by underscore to make easier to debug
     # Left most digit is most significant digit 1-7 for high card to five of a kind.
     # right digits are 0-12 for 2 to Ace for each position ()
-    return _left_sig(round.hand) + "_" + _right_sig(round.hand)
+    return _left_sig(handle_jokers(round.hand)) + "_" + _right_sig(round.hand)
+
+
+def handle_jokers(hand: str) -> str:
+    # Joker always converts to most common hand
+    most_common_list = Counter(hand).most_common(2)
+    top_letter, top_count = most_common_list[0]
+    if (
+        top_letter == "J" and top_count < 5
+    ):  # special case if joker most common letter and not 5 jokers
+        top_letter = most_common_list[1][0]  # use second most common letter instead
+
+    return hand.replace("J", top_letter)
 
 
 def _left_sig(hand: str) -> str:
@@ -73,7 +85,7 @@ def _left_sig(hand: str) -> str:
 def _right_sig(hand: str) -> str:
     # tie breaking for hands of same type
     # use the index to determine the key, with 2 (index 0) and A (index 12)
-    values = "23456789TJQKA"
+    values = "J23456789TQKA"
     return "_".join([str(values.find(c)).zfill(2) for c in hand])  # use index to rank
 
 

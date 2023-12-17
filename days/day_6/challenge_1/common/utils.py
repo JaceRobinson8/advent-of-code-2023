@@ -40,7 +40,7 @@ def quadratic_solver(a: float, b: float, c: float) -> list:
 
 def parse_input(file_path: Path = Path("./input/input.txt")) -> list[Race]:
     # regex to find all digits in a line
-    pattern = re.compile("\d+")
+    pattern = re.compile(r"\d+")
     # First make grid
     with open(file_path, "r") as file:
         # get times

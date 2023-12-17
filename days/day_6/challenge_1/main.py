@@ -14,5 +14,5 @@ if __name__ == "__main__":
     input_path = Path("./days/day_6/challenge_1/input/input.txt")
     races = parse_input(input_path)
     # product all records
-    res = reduce(lambda x, y: x * y, [r.beat_record_count for r in races], 1.0)
+    res = int(reduce(lambda x, y: x * y, [r.beat_record_count for r in races], 1.0))
     logger.info(f"****Answer: {res}****")

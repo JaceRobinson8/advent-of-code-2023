@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG, format="%(message)s", handlers=[RichHandler()]
     )
-    input_path = Path("./days/day_7/challenge_1/input/input.txt")
+    input_path = Path("./days/day_7/challenge_2/input/input.txt")
     game = parse_input(input_path)
     logger.debug("before")
     logger.debug(game.rounds)
