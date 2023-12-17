@@ -1,5 +1,6 @@
 # Jace defined
-*input/*.txt
+*input.txt
+*test.txt
 *problem.txt
 
 # Byte-compiled / optimized / DLL files
