@@ -1,7 +1,6 @@
 # Jace defined
-*input/*
+*/input/*.txt
 *problem.txt
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
