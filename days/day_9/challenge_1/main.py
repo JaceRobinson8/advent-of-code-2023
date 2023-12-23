@@ -10,5 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG, format="%(message)s", handlers=[RichHandler()]
     )
-    # input_path = Path("./days/day_5/challenge_1/input/input.txt")
-    # parse_input(input_path)
+    input_path = Path("./days/day_9/challenge_1/input/input.txt")
+    stacks = parse_input(input_path)
+    res = sum([s.top_extrap_val for s in stacks])
+    logger.info(f"****Answer: {res}****")
