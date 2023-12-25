@@ -48,8 +48,9 @@ def parse_input(file_path: Path = Path("./input/input.txt")) -> list[SequenceSta
     # First make grid
     with open(file_path, "r") as file:
         stacks = [SequenceStack.from_str(line) for line in file.readlines()]
-        [stack.build_diff_seqs() for stack in stacks]
-        [stack.append_stack() for stack in stacks]
+        for stack in stacks:
+            stack.build_diff_seqs()
+            stack.append_stack()
         logger.debug(stacks)
 
     return stacks

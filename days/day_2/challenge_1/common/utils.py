@@ -1,48 +1,42 @@
 from pathlib import Path
 from dataclasses import dataclass
 import logging
-from enum import Enum
+from enum import StrEnum, auto
 
 logger = logging.getLogger(__name__)
 
 
-class Colors(Enum):
-    RED = "red"
-    GREEN = "green"
-    BLUE = "blue"
+class Colors(StrEnum):
+    RED = auto()
+    GREEN = auto()
+    BLUE = auto()
 
 
 @dataclass
 class Round:
-    n_red: int = 0
-    n_blue: int = 0
-    n_green: int = 0
+    red: int = 0
+    blue: int = 0
+    green: int = 0
 
     @classmethod
     def from_str(cls, round_str: str):
         round = cls()
-        [round.set_count_from_str(count_str) for count_str in round_str.split(", ")]
+        [
+            round.set_count_from_str(*count_str.split(" "))
+            for count_str in round_str.split(", ")
+        ]
         return round
 
-    def set_count_from_str(self, count_str: str) -> None:
-        count, color = count_str.split(" ")
-        match color:
-            case Colors.RED.value:
-                self.n_red = int(count)
-            case Colors.GREEN.value:
-                self.n_green = int(count)
-            case Colors.BLUE.value:
-                self.n_blue = int(count)
-            case _:
-                raise ValueError("Invalid color str")
+    def set_count_from_str(self, count: str, color: str) -> None:
+        vars(self)[color] = int(count)
 
     def check_possible(self, n_red_max: int, n_green_max: int, n_blue_max: int) -> bool:
         # Game possible if real values less than equal to ALL provided values
-        logger.debug(f"r: {self.n_red}, g: {self.n_green}, b: {self.n_blue}")
+        logger.debug(f"r: {self.red}, g: {self.green}, b: {self.blue}")
         return (
-            self.n_red <= n_red_max
-            and self.n_green <= n_green_max
-            and self.n_blue <= n_blue_max
+            self.red <= n_red_max
+            and self.green <= n_green_max
+            and self.blue <= n_blue_max
         )
 
 

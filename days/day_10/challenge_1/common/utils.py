@@ -17,7 +17,7 @@ class PipeTypes(Enum):
     G = "."
     S = "S"
 
-class Directions(Enum):
+class Dirs(Enum):
     N = "N"
     S = "S"
     E = "E"
@@ -26,7 +26,7 @@ class Directions(Enum):
 
 @dataclass
 class Tile:
-    """Single entry in the grid, has different"""
+    """Single entry in the grid"""
 
     ptype: PipeTypes
 
@@ -57,13 +57,32 @@ class Tile:
 
     def __repr__(self):
         return self.ptype.value
+    
+    @property
+    def directions(self) -> list[Dirs, Dirs]:
+        """Return two directions"""
+        if self.ptype == PipeTypes.NS:
+            return [Dirs.N, Dirs.S]
+        elif self.ptype == PipeTypes.EW:
+            return [Dirs.E, Dirs.W]
+        elif self.ptype == PipeTypes.NE:
+            return [Dirs.N, Dirs.E]
+        elif self.ptype == PipeTypes.NW:
+            return [Dirs.N, Dirs.W]
+        elif self.ptype == PipeTypes.SE:
+            return [Dirs.S, Dirs.E]
+        elif self.ptype == PipeTypes.SW:
+            return [Dirs.S, Dirs.W]
+    
+        
+
 
 
 def check_north(t1: Tile, t2: Tile) -> bool:
     """Return True if tile1 connects to tile2 north, else False."""
     res = False
     if t1.ptype == PipeTypes.NS:
-        if t2.ptype == PipeTypes.NS or t2.ptype == PipeTypes.SE or t2.ptype == PipeTypes.SW:
+        if Dirs.S in t2.directions:
             res = True
     elif t1.ptype == PipeTypes.EW:
         pass
