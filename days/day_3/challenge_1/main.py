@@ -10,10 +10,5 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG, format="%(message)s", handlers=[RichHandler()]
     )
-    input_path = Path("./days/day_3/challenge_1/input/test.txt")
-    games = parse_input(input_path)
-    # result = sum(
-    #     [g.id for g in games if g.check_possible(N_RED_MAX, N_GREEN_MAX, N_BLUE_MAX)]
-    # )
-    # logger.info("****Answer:****")
-    # logger.info(result)
+    input_path = Path("./days/day_3/challenge_1/input/input.txt")
+    parse_input(input_path)
