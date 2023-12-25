@@ -2,6 +2,7 @@ from pathlib import Path
 from dataclasses import dataclass
 import logging
 import numpy as np
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -19,69 +20,33 @@ class PartNumber:
 
 @dataclass
 class Grid:
-    g: np.chararray
+    g: list[str]
 
     @classmethod
     def from_str(cls, grid_str: str):
-        lines = grid_str.split("\n")
-        num_rows = len(lines)
-        num_cols = len(lines[0])
-        g = np.chararray((num_rows, num_cols))
-        for r in range(num_rows):
-            for c in range(num_rows):
-                g[r, c] = lines[r][c]
-        return cls(g)
+        return cls(grid_str.split("\n"))
 
     @property
     def n_row(self) -> int:
-        return self.g.shape[0]
+        return len(self.g)
 
     @property
     def n_col(self) -> int:
-        return self.g.shape[1]
-
-    def _get_part_numbers_row(self, rid: str) -> list[PartNumber]:
-        pass
+        return len(self.g[0])
 
     def get_part_numbers(self) -> list[PartNumber]:
-        # Loop over the grid, looking for part numbers
-        # (continuous blocks of numbers in a row)
-        part_numbers = []
-        for r in range(self.n_row):
-            found_part = False
-            col_start = -1
-            col_end = -1
-            for c in range(self.n_col):
-                if self.g[r, c].isdigit():
-                    col_end = c
-                    if not found_part:  # we found start of new number
-                        found_part = True
-                        col_start = c
-                else:
-                    if found_part:  #
-                        part_numbers.append(
-                            PartNumber(
-                                r,
-                                col_start,
-                                col_end,
-                                int(
-                                    "".join(
-                                        self.g[r, col_start : (col_end + 1)].astype(str)
-                                    )
-                                ),
-                            )
-                        )
-                        found_part = False
-            if found_part:  #
-                part_numbers.append(
+        partNumbers = []
+        for id, line in enumerate(self.g):
+            for match in re.finditer(r"\d+", line):
+                partNumbers.append(
                     PartNumber(
-                        r,
-                        col_start,
-                        col_end,
-                        int("".join(self.g[r, col_start : (col_end + 1)].astype(str))),
+                        row_index=id,
+                        col_index_start=match.start(),
+                        col_index_end=match.end(),
+                        number=int(match.group()),
                     )
                 )
-        return part_numbers
+        return partNumbers
 
     def validate_part(self, part: PartNumber) -> bool:
         valid_part = False  # false until a symbol found, then true
@@ -162,6 +127,30 @@ class Grid:
             condition = (not val.isdigit()) and (val != ".")
         return condition
 
+    def validate_part2(self, part: PartNumber) -> bool:
+        return (
+            self.check_left2(part)
+            or self.check_right2(part)
+            or self.check_above2(part)
+            or self.check_below2(part)
+        )
+
+    def check_left2(self, part: PartNumber) -> bool:
+        val = self.g[part.row_index][max(0, part.col_index_start - 1)]
+        return (not val.isdigit()) and (val != ".")
+
+    def check_right2(self, part: PartNumber) -> bool:
+        val = self.g[part.row_index][
+            min(len(self.g[part.row_index]) - 1, part.col_index_end)
+        ]
+        return (not val.isdigit()) and (val != ".")
+
+    def check_above2(self, part: PartNumber) -> bool:
+        val = self.g[part.row_index][
+            min(len(self.g[part.row_index]) - 1, part.col_index_end)
+        ]
+        return (not val.isdigit()) and (val != ".")
+
 
 def parse_input(file_path: Path = Path("./input/input.txt")) -> list[PartNumber]:
     # First make grid
@@ -175,7 +164,7 @@ def parse_input(file_path: Path = Path("./input/input.txt")) -> list[PartNumber]
     [logger.debug(part_number.number) for part_number in part_numbers]
     logger.debug(f"Number of parts: {len(part_numbers)}")
     logger.debug("Validations:")
-    logger.debug([grid.validate_part(p) for p in part_numbers])
+    logger.debug([grid.validate_part2(p) for p in part_numbers])
     logger.debug(sum([p.number for p in part_numbers if grid.validate_part(p)]))
 
     return None
