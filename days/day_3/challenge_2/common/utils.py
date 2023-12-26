@@ -19,6 +19,15 @@ class PartNumber:
 
 
 @dataclass
+class Gear:
+    row_index: int  # row id
+    col_index_start: int  # cid
+    col_index_end: int
+    valid: bool = False
+    ratio: int = 0
+
+
+@dataclass
 class Grid:
     g: list[str]
 
@@ -48,6 +57,19 @@ class Grid:
                 )
         return partNumbers
 
+    def get_gears(self) -> list[Gear]:
+        gears = []
+        for id, line in enumerate(self.g):
+            for match in re.finditer(r"\*", line):
+                gears.append(
+                    Gear(
+                        row_index=id,
+                        col_index_start=match.start(),
+                        col_index_end=match.end(),
+                    )
+                )
+        return gears
+
     def clip(self, val: int, ub: int, lb: int = 0) -> int:
         return max(
             lb,
@@ -73,6 +95,77 @@ class Grid:
             or self.check_below(part)
         )
 
+    def get_gear_ratio(self, gear: Gear, parts: list[PartNumber]) -> None:
+        found_parts: list[PartNumber] = []
+
+        # left
+        found_parts.extend(
+            self.find_part_number_val(parts, gear.row_index, gear.col_index_start - 1)
+        )
+        # right
+        found_parts.extend(
+            self.find_part_number_val(parts, gear.row_index, gear.col_index_start + 1)
+        )
+        # above
+        found_parts.extend(
+            self.find_part_number_val(
+                parts,
+                gear.row_index - 1,
+                range(gear.col_index_start - 1, gear.col_index_end + 1),
+            )
+        )
+        # below
+        found_parts.extend(
+            self.find_part_number_val(
+                parts,
+                gear.row_index + 1,
+                range(gear.col_index_start - 1, gear.col_index_end + 1),
+            )
+        )
+
+        if len(found_parts) == 2:  # exactly 2 parts
+            gear.ratio = found_parts[0].number * found_parts[1].number
+            gear.valid = True
+
+    def find_part_number_val(
+        self, parts: list[PartNumber], rid: int, cid: int
+    ) -> list[PartNumber]:
+        found_parts = []
+        if isinstance(cid, range):  # could match multiple parts
+            cmin = cid[0]
+            cmiddle = cid[1]
+            cmax = cid[-1]
+            for p in parts:
+                if (
+                    p.row_index == rid
+                    and cmin >= p.col_index_start
+                    and cmin < p.col_index_end
+                ):
+                    found_parts.append(p)
+                elif (
+                    p.row_index == rid
+                    and cmax >= p.col_index_start
+                    and cmax < p.col_index_end
+                ):
+                    found_parts.append(p)
+                elif (
+                    p.row_index == rid
+                    and cmiddle >= p.col_index_start
+                    and cmiddle < p.col_index_end
+                ):
+                    found_parts.append(p)
+
+        else:
+            for p in parts:
+                if (
+                    p.row_index == rid
+                    and cid >= p.col_index_start
+                    and cid < p.col_index_end
+                ):
+                    found_parts.append(p)
+                    break
+        return found_parts
+
     def check_left(self, part: PartNumber) -> bool:
         return self.check(self.get(part.row_index, part.col_index_start - 1))
 
@@ -97,9 +190,9 @@ class Grid:
 
     def check(self, val: str) -> bool:
         if len(val) > 1:
-            res = any([(not x.isdigit()) and (x != ".") for x in val])
+            res = any([x.isdigit() for x in val])
         else:
-            res = (not val.isdigit()) and (val != ".")
+            res = val.isdigit()
         return res
 
 
@@ -108,10 +201,9 @@ def parse_input(file_path: Path = Path("./input/input.txt")) -> list[PartNumber]
     with open(file_path, "r") as file:
         grid = Grid.from_str(file.read())
     part_numbers = grid.get_part_numbers()
-    logger.debug(f"Number of parts: {len(part_numbers)}")
+    gears = grid.get_gears()
+    logger.debug(f"Number of gears: {len(gears)}")
     logger.debug("Validations:")
-    logger.debug([grid.validate_part(p) for p in part_numbers])
-    logger.info(
-        f"****Answer: {sum([p.number for p in part_numbers if grid.validate_part(p)])}****"
-    )
+    [grid.get_gear_ratio(g, part_numbers) for g in gears]
+    logger.info(f"****Answer: {sum([g.ratio for g in gears if g.valid])}****")
     return None
