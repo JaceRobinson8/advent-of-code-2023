@@ -101,11 +101,10 @@ def parse_input(file_path: Path = Path("./input/input.txt")) -> None:
     with open(file_path, "r") as file:
         full_text = file.read()
         pages = full_text.split("\n\n")
-        seed_line = pages[0]
-        seed_nums = seed_line.split("seeds:")[1].strip().split(" ")
-        my_alamac = Almanac.build_maps(pages[1:])
+        seed_nums = pages[0].split("seeds:")[1].strip().split(" ")
+        my_almanac = Almanac.build_maps(pages[1:])
 
-    score = min([my_alamac.get_location(int(seed)) for seed in seed_nums])
+    score = min([my_almanac.get_location(int(seed)) for seed in seed_nums])
     logger.info("****Answer:****")
     logger.info(score)
     return None
