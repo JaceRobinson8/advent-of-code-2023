@@ -10,5 +10,5 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG, format="%(message)s", handlers=[RichHandler()]
     )
-    # input_path = Path("./days/day_5/challenge_1/input/input.txt")
-    # parse_input(input_path)
+    input_path = Path("./days/day_11/challenge_1/input/input.txt")
+    parse_input(input_path)
