@@ -1,17 +1,9 @@
-[tool.poetry]
+[project]
 name = "advent-of-code-2023"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Add your description here"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.12"
-numpy = "^1.26.2"
-rich = "^13.7.0"
-scipy = "^1.11.4"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.13"
+dependencies = [
+    "rich>=14.0.0",
+]
